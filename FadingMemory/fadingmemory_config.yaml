@@ -1,14 +1,14 @@
 log_level: "DEBUG"
-memories_dir: "/FadingMemory/images/memories"
-edges_dir: "/FadingMemory/images/edges"
-captures_dir: "/FadingMemory/images/captures"
-#bckgrnd_file: "/FadingMemory/images/backgrounds/Homeniche-16-9.jpg"  # "AUTO" or full path to image!
-bckgrnd_file: "/FadingMemory/images/backgrounds/homeniche43_2.JPG"  # "AUTO" or full path to image!
-#bckgrnd_file: "/FadingMemory/images/backgrounds/emptyoffice.jpg"  # "AUTO" or full path to image!
-#bckgrnd_file: "/FadingMemory/images/backgrounds/Kizyard.jpeg"  # "AUTO" or full path to image!
-bckgrnd_dir: "/FadingMemory/images/backgrounds/2019-08-31"
+memories_dir: "/FadingMemoriesCamera/FadingMemory/images/memories"
+edges_dir: "/FadingMemoriesCamera/FadingMemory/images/edges"
+captures_dir: "/FadingMemoriesCamera/FadingMemory/images/captures"
+#bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/Homeniche-16-9.jpg"  # "AUTO" or full path to image!
+bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/homeniche43_2.JPG"  # "AUTO" or full path to image!
+#bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/emptyoffice.jpg"  # "AUTO" or full path to image!
+#bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/Kizyard.jpeg"  # "AUTO" or full path to image!
+bckgrnd_dir: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/2019-08-31"
 bckgrnd_prefix: "bckgrnd_"
-#background: "/FadingMemory/images/backgrounds/homewall.jpg"
+#background: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/homewall.jpg"
 mergestyle: "BlackEdges"
 grayscale_background: 0
 model_weights_path: vgg16.npy
@@ -22,7 +22,7 @@ testing:
 test_snapshot: 5000
 # Apply testing_threshold after sigmoid to generate binary maps set to 0.0 for continous valued edge maps
 testing_threshold: 0.0
-save_dir: /FadingMemory/Backend/holy-edge/hed
+save_dir: /FadingMemoriesCamera/FadingMemory/Backend/holy-edge/hed
 # Section 4.1 Loss for layer fusion
 loss_weights: 1.0
 # save snapshot every save_interval iterations
@@ -42,4 +42,4 @@ mean_pixel_value: [103.939, 116.779, 123.68]
 channel_swap: [2, 1, 0]
 
 # HED - CV2 configurations
-edge_detector: /FadingMemory/Backend/hed-cv/hed_model
+edge_detector: /FadingMemoriesCamera/FadingMemory/Backend/hed-cv/hed_model

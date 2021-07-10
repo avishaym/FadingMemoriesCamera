@@ -7,7 +7,7 @@ import yaml
 
 def generate_memory(keeppic):
 
-    base_dir = "/FadingMemory"
+    base_dir = "/FadingMemoriesCamera/FadingMemory"
     config_file = os.path.join(base_dir,"fadingmemory_config.yaml")
     try:
 	subprocess.call(["touch",config_file])
