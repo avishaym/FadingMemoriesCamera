@@ -3,7 +3,7 @@ memories_dir: "/FadingMemoriesCamera/FadingMemory/images/memories"
 edges_dir: "/FadingMemoriesCamera/FadingMemory/images/edges"
 captures_dir: "/FadingMemoriesCamera/FadingMemory/images/captures"
 #bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/Homeniche-16-9.jpg"  # "AUTO" or full path to image!
-bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/homeniche43_2.JPG"  # "AUTO" or full path to image!
+bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/office.jpg"  # "AUTO" or full path to image!
 #bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/emptyoffice.jpg"  # "AUTO" or full path to image!
 #bckgrnd_file: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/Kizyard.jpeg"  # "AUTO" or full path to image!
 bckgrnd_dir: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/2019-08-31"
