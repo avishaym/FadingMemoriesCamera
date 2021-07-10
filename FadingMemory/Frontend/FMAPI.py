@@ -5,7 +5,7 @@ from memories import generate_memory
 
 
 def FMDB_getlastruls(howmany):
-    conn = sqlite3.connect('/FadingMemory/Backend/FMDB/FMDB.db')
+    conn = sqlite3.connect('/FadingMemoriesCamera/FadingMemory/Backend/FMDB/FMDB.db')
     c = conn.cursor()
     c.execute("SELECT url FROM images_metadata ORDER BY id DESC LIMIT :howmany", {'howmany':howmany})
     urllist = c.fetchmany(howmany)
@@ -36,8 +36,8 @@ def approval():
 @app.route('/gallery', methods=["GET", "POST"])
 def gallery():
     if request.method == 'POST':
-        if not request.json or not 'title' in request.json:
-            abort(400)
+        # if not request.json or not 'title' in request.json:
+        #    abort(400)
         count = request.json['count']
         urllist = FMDB_getlastruls(count)
         print urllist
