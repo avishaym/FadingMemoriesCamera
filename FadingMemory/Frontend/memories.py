@@ -27,8 +27,8 @@ def generate_memory(keeppic):
 		bckgrnd_dir = cfgs['bckgrnd_dir']
 		bckgrnd_prefix = cfgs['bckgrnd_prefix']
 		mergestyle = cfgs["mergestyle"]
-		grayscale_background = cfgs["grayscale_background"]
 		log_level = cfgs['log_level']
+		#grayscale_background = cfgs["grayscale_background"]
 		pfile.close()
 
 	except Exception as err:
@@ -55,12 +55,24 @@ def generate_memory(keeppic):
 	latest_filename = os.path.basename(latest_file)
 	file_prefix, latest_idx, stageandjpg = latest_filename.split("_")
 	next_idx = int(latest_idx) + 1
-	print("latest cature is:", latest_filename, "indexed:", latest_idx)
-	print("next idx:", next_idx)
-	# Capture an images
+
+	logger.info("latest cature is: %s indexed: %s", latest_filename, latest_idx)
+	logger.info("next idx: %s", next_idx)
 
 	capture_filename = captures_dir + "/IMG_" + str(next_idx) + "_cap.jpg"
-	subprocess.call(["/usr/bin/fswebcam","-r","1600x1200",capture_filename])
+
+	# Capture an images
+
+	cap = cv2.VideoCapture(0)
+	cap.set(3, cfgs['image_width'])
+	cap.set(4, cfgs['image_height'])
+	ret, frame = cap.read()
+	cv2.imwrite(capture_filename, frame)
+	cap.release()
+
+	#subprocess.call(["/usr/bin/fswebcam","-r","1600x1200",capture_filename])
+
+
 
 	# Verify image was captured
 	try:
@@ -132,7 +144,11 @@ def generate_memory(keeppic):
 
 	logger.info("Background selected is %s", latest_bckgrnd_fullpath)
 
-	background = cv2.imread(latest_bckgrnd_fullpath)
+	try:
+		background = cv2.imread(latest_bckgrnd_fullpath)
+		logger.info("Background image loaded")
+	except:
+		logger.error( "Failed to read background image %s", latest_bckgrnd_fullpath)
 
 	logger.info("Writing edges image to edgebeforealigncontrol")
 	cv2.imwrite("/FadingMemoriesCamera/FadingMemory/images/edgebeforealigncontrol.jpg", edgemap)
@@ -140,7 +156,7 @@ def generate_memory(keeppic):
 #	logger.info("Aligning Edges according to background")
 	# edgemap, h = alignEdges(image, background, edgemap)
 #	edgemap, h = alignEdges_FLANN(image, background, edgemap)
-#	edgemap = cv2.bitwise_not(edgemap)
+	edgemap = cv2.bitwise_not(edgemap)
 
 	logger.info("Writing edges image to %s", edgefile_fullpath)
 	cv2.imwrite(edgefile_fullpath, edgemap)
@@ -152,14 +168,6 @@ def generate_memory(keeppic):
 	previous_bolded = 0
 	EdgeMap_Threshold = 150
 
-	if (grayscale_background == 1):
-		logger.info("Converting background to grayscale and saving control image")
-		background = cv2.cvtColor(background, cv2.COLOR_RGB2GRAY)
-		cv2.imwrite(r"/FadingMemory/images/BW_background_control.jpg", background)
-		logger.debug("Forcing merge style to BlackEdges")
-		mergestyle = "BlackEdges"
-
-
 
 	# Merging according to Style
 	############################
@@ -167,7 +175,9 @@ def generate_memory(keeppic):
 
 	for i in range(H):
 		for j in range(W):
-			# print edgemap[i,j]
+			logger.debug("i is: %s j is: %s", i, j)
+			logger.debug("Edge is %s %s %s ",edgemap[i, j][0] ,edgemap[i, j][1], edgemap[i, j][2]  )
+			logger.debug("Background is %s %s %s", background[i, j][0] ,background[i, j][1], background[i, j][2])
 			if (mergestyle == 'WhiteBlackEdges'):
 				#logger.info("Style applied WBedges")
 				if (edgemap[i, j][0] > EdgeMap_Threshold) or (edgemap[i, j][1] > EdgeMap_Threshold) or (edgemap[i, j][2] > EdgeMap_Threshold):
@@ -187,14 +197,11 @@ def generate_memory(keeppic):
 						#print edgemap[i, j]
 						edgemap[i, j] = [ 0, 0, 0]
 						previous_bolded = 1
-
-
 			elif (mergestyle == 'BlackEdges'):
 				if (edgemap[i, j][0] > EdgeMap_Threshold) or (edgemap[i, j][1] > EdgeMap_Threshold) or (edgemap[i, j][2] > EdgeMap_Threshold):
 					edgemap[i, j] = background[i, j]
 				else :
 					edgemap[i, j] = [ 0, 0, 0]
-
 			elif (mergestyle == 'WhiteEdges'):
 				#logger.info("Style applied: %s", mergestyle)
 				if (edgemap[i, j][0] < EdgeMap_Threshold) or (edgemap[i, j][1] < EdgeMap_Threshold) or (edgemap[i, j][2] < EdgeMap_Threshold):
@@ -233,15 +240,6 @@ def generate_memory(keeppic):
 
 	logger.info("generate_hedcv completed")
 
-
-
-
-
-
-
-
-
-
 	# Verify new memory was crated
 	memories_wildcard = memories_dir + "/*"
 	list_of_files = glob.glob(memories_wildcard)
@@ -253,7 +251,7 @@ def generate_memory(keeppic):
 		subprocess.call(["rm",capture_filename])
 		sys.exit("Failed to generate a new memory")
 	else:
-		print "Memory creation completed successfully!!!"
+		print("Memory creation completed successfully!!!")
 
 	if keeppic == 0:
 		subprocess.call(["rm",capture_filename])
@@ -261,59 +259,56 @@ def generate_memory(keeppic):
 	return latest_idx, latest_file
 
 
-
-
-
 def alignEdges(captured, bckgrnd, edges):
 
-  MAX_FEATURES = 500
-  GOOD_MATCH_PERCENT = 0.15
+	MAX_FEATURES = 500
+	GOOD_MATCH_PERCENT = 0.15
+
+	# Convert images to grayscale
+	capGray = cv2.cvtColor(captured, cv2.COLOR_BGR2GRAY)
+	bckgrndGray = cv2.cvtColor(bckgrnd, cv2.COLOR_BGR2GRAY)
+	edgesGray = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
+
+	# Detect ORB features and compute descriptors.
+	orb = cv2.ORB_create(MAX_FEATURES)
+	keypoints1, descriptors1 = orb.detectAndCompute(capGray, None)
+	keypoints2, descriptors2 = orb.detectAndCompute(bckgrndGray, None)
+
+	# Match features.
+	matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
+	matches = matcher.match(descriptors1, descriptors2, None)
+
+	# Sort matches by score
+	matches.sort(key=lambda x: x.distance, reverse=False)
+
+	# Remove not so good matches
+	numGoodMatches = int(len(matches) * GOOD_MATCH_PERCENT)
+	matches = matches[:numGoodMatches]
+
+	# # Draw top matches
+	# imMatches = cv2.drawMatches(im1, keypoints1, im2, keypoints2, matches, None)
+	# cv2.imwrite("matches.jpg", imMatches)
+
+	# Extract location of good matches
+	pointsCap = np.zeros((len(matches), 2), dtype=np.float32)
+	pointsBckgrnd = np.zeros((len(matches), 2), dtype=np.float32)
+
+	for i, match in enumerate(matches):
+		pointsCap[i, :] = keypoints1[match.queryIdx].pt
+		pointsBckgrnd[i, :] = keypoints2[match.trainIdx].pt
+
+	# Find homography
+	try:
+		h, mask = cv2.findHomography(pointsCap, pointsBckgrnd, cv2.RANSAC)
+	except Exception as err:
+		sys.exit("Failed to find homography - image taken too different from background")
 
 
-  # Convert images to grayscale
-  capGray = cv2.cvtColor(captured, cv2.COLOR_BGR2GRAY)
-  bckgrndGray = cv2.cvtColor(bckgrnd, cv2.COLOR_BGR2GRAY)
-  edgesGray = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
-  # Detect ORB features and compute descriptors.
-  orb = cv2.ORB_create(MAX_FEATURES)
-  keypoints1, descriptors1 = orb.detectAndCompute(capGray, None)
-  keypoints2, descriptors2 = orb.detectAndCompute(bckgrndGray, None)
+	# Use homography
+	height, width, channels = bckgrnd.shape
+	edgesReg = cv2.warpPerspective(edges, h, (width, height))
 
-  # Match features.
-  matcher = cv2.DescriptorMatcher_create(cv2.DESCRIPTOR_MATCHER_BRUTEFORCE_HAMMING)
-  matches = matcher.match(descriptors1, descriptors2, None)
-
-  # Sort matches by score
-  matches.sort(key=lambda x: x.distance, reverse=False)
-
-  # Remove not so good matches
-  numGoodMatches = int(len(matches) * GOOD_MATCH_PERCENT)
-  matches = matches[:numGoodMatches]
-
-  # # Draw top matches
-  # imMatches = cv2.drawMatches(im1, keypoints1, im2, keypoints2, matches, None)
-  # cv2.imwrite("matches.jpg", imMatches)
-
-  # Extract location of good matches
-  pointsCap = np.zeros((len(matches), 2), dtype=np.float32)
-  pointsBckgrnd = np.zeros((len(matches), 2), dtype=np.float32)
-
-  for i, match in enumerate(matches):
-	pointsCap[i, :] = keypoints1[match.queryIdx].pt
-	pointsBckgrnd[i, :] = keypoints2[match.trainIdx].pt
-
-# Find homography
-  try:
-	h, mask = cv2.findHomography(pointsCap, pointsBckgrnd, cv2.RANSAC)
-  except Exception as err:
-	sys.exit("Failed to find homography - image taken too different from background")
-
-
-  # Use homography
-  height, width, channels = bckgrnd.shape
-  edgesReg = cv2.warpPerspective(edges, h, (width, height))
-
-  return edgesReg, h
+	return edgesReg, h
 
 def alignEdges_FLANN(captured, bckgrnd, edges):
 

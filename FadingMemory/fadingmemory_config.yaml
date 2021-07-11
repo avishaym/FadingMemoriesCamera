@@ -1,4 +1,5 @@
-log_level: "DEBUG"
+#
+log_level: "INFO"
 memories_dir: "/FadingMemoriesCamera/FadingMemory/images/memories"
 edges_dir: "/FadingMemoriesCamera/FadingMemory/images/edges"
 captures_dir: "/FadingMemoriesCamera/FadingMemory/images/captures"
@@ -10,14 +11,13 @@ bckgrnd_dir: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/2019-08-31"
 bckgrnd_prefix: "bckgrnd_"
 #background: "/FadingMemoriesCamera/FadingMemory/images/backgrounds/homewall.jpg"
 mergestyle: "BlackEdges"
-grayscale_background: 0
 model_weights_path: vgg16.npy
-testing:
+#testing:
 #     # image_width: 480
 #     # image_height: 320
-     image_width: 1600
-     image_height: 1200
-     n_channels: 3
+image_width: 1600
+image_height: 1200
+n_channels: 3
 # use snapshot after test_snapshot intervals for testing
 test_snapshot: 5000
 # Apply testing_threshold after sigmoid to generate binary maps set to 0.0 for continous valued edge maps
