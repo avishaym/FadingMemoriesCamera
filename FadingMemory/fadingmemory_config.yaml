@@ -1,5 +1,5 @@
 #
-log_level: "INFO"
+log_level: "DEBUG"
 memories_dir: "/FadingMemoriesCamera/FadingMemory/images/memories"
 edges_dir: "/FadingMemoriesCamera/FadingMemory/images/edges"
 captures_dir: "/FadingMemoriesCamera/FadingMemory/images/captures"

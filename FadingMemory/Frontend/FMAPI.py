@@ -13,7 +13,7 @@ def FMDB_getlastruls(howmany):
     return urllist
 
 def FMDB_registermail(url, email):
-    conn = sqlite3.connect('/FadingMemory/Backend/FMDB/FMDB.db')
+    conn = sqlite3.connect('/FadingMemoriesCamera/FadingMemory/Backend/FMDB/FMDB.db')
     c = conn.cursor()
     app.logger.info('%s %s about to register to FMDB', id, email)
     c.execute("UPDATE images_metadata SET email_addr=(:email) WHERE url=:url ", {'email':email, 'url':url})

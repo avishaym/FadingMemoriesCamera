@@ -86,8 +86,6 @@ def generate_memory(keeppic):
 
 	# Generate "Memory" image
 
-#    subprocess.call(["docker","run","-v","/FadingMemory:/FadingMemory","-v","/etc/localtime:/etc/localtime:ro","-w","/FadingMemory/Backend","hoyledge_opencv_v6","python","generate_hedcv.py"])
-
 	# just for testing instead of generating real memory
 	#mem_file = memories_dir + "/IMG_" + str(next_idx) + "_memory.jpg"
 	#subprocess.call(["cp",capture_filename, mem_file])
@@ -175,9 +173,9 @@ def generate_memory(keeppic):
 
 	for i in range(H):
 		for j in range(W):
-			logger.debug("i is: %s j is: %s", i, j)
-			logger.debug("Edge is %s %s %s ",edgemap[i, j][0] ,edgemap[i, j][1], edgemap[i, j][2]  )
-			logger.debug("Background is %s %s %s", background[i, j][0] ,background[i, j][1], background[i, j][2])
+		# 	logger.debug("i is: %s j is: %s", i, j)
+		# 	logger.debug("Edge is %s %s %s ",edgemap[i, j][0] ,edgemap[i, j][1], edgemap[i, j][2]  )
+		# 	logger.debug("Background is %s %s %s", background[i, j][0] ,background[i, j][1], background[i, j][2])
 			if (mergestyle == 'WhiteBlackEdges'):
 				#logger.info("Style applied WBedges")
 				if (edgemap[i, j][0] > EdgeMap_Threshold) or (edgemap[i, j][1] > EdgeMap_Threshold) or (edgemap[i, j][2] > EdgeMap_Threshold):
@@ -238,7 +236,6 @@ def generate_memory(keeppic):
 	logger.info("Writing memory to: %s", memory_fullpath)
 	cv2.imwrite(memory_fullpath, edgemap)
 
-	logger.info("generate_hedcv completed")
 
 	# Verify new memory was crated
 	memories_wildcard = memories_dir + "/*"
@@ -255,6 +252,15 @@ def generate_memory(keeppic):
 
 	if keeppic == 0:
 		subprocess.call(["rm",capture_filename])
+
+	logger.info("Writing image metadata to FMDB")
+	conn = sqlite3.connect('/FadingMemoriesCamera/FadingMemory/Backend/FMDB/FMDB.db')
+	c = conn.cursor()
+	c.execute("INSERT INTO images_metadata(id, url) VALUES(?, ?)", (latest_idx, latest_file))
+	conn.commit()
+	conn.close()
+
+	logger.info("generate memory completed")
 
 	return latest_idx, latest_file
 
@@ -364,12 +370,12 @@ def alignEdges_FLANN(captured, bckgrnd, edges):
 					   flags = 2)
 	# Write control matches image
 	img3 = cv2.drawMatches(capGray,capkp,bckgrndGray,bckgrndkp,good,None,**draw_params)
-	cv2.imwrite('/FadingMemory/images/FLANN_matches_control.jpg',img3)
+	cv2.imwrite('/FadingMemoriesCamera/FadingMemory/images/FLANN_matches_control.jpg',img3)
 
 	return edgesReg, M
 
 def FMDB_getlastid():
-	conn = sqlite3.connect('/FadingMemory/Backend/FMDB/FMDB.db')
+	conn = sqlite3.connect('/FadingMemoriesCamera/FadingMemory/Backend/FMDB/FMDB.db')
 	c = conn.cursor()
 	c.execute("SELECT id FROM images_metadata ORDER BY id DESC LIMIT 1")
 	lastid = c.fetchone()[0]
